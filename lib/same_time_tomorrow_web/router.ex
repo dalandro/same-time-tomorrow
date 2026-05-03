@@ -18,6 +18,7 @@ defmodule SameTimeTomorrowWeb.Router do
     pipe_through :browser
 
     live "/", ArticleLive.Index, :index
+    live "/vocab/import", VocabLive.Import, :import
   end
 
   # Other scopes may use custom stacks.
