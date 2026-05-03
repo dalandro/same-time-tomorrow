@@ -44,7 +44,8 @@ defmodule SameTimeTomorrow.Feeds.FetchFeedWorker do
             title: item.title,
             url: item.url,
             published_at: item.published_at,
-            fetched_at: now
+            fetched_at: now,
+            tokens: SameTimeTomorrow.Tokenizer.tokenize(item.title)
           }
         end)
 

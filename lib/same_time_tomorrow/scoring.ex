@@ -1,51 +1,42 @@
 defmodule SameTimeTomorrow.Scoring do
   @moduledoc """
-  Scores article titles against a known vocabulary set using jieba word segmentation.
-  Each token from jieba is checked against the known headwords MapSet.
-  Non-CJK tokens (punctuation, numbers, latin) are ignored.
+  Scores articles against a known vocabulary set.
+  Uses pre-stored tokens from articles.tokens when available (fast path).
+  Falls back to live tokenization for articles without stored tokens.
 
-  Text is normalized from traditional→simplified before scoring so that
-  vocab lists (which are simplified) match articles from feeds that may
-  include traditional characters (e.g. BBC 中文 traditional feed).
-
-  TODO: audit which specific feeds emit traditional chars and consider
-  fetching the simplified-only variant of those feeds instead. The
-  normalization here is a catch-all but adds a small per-title cost.
+  TODO: research optimal threshold (i+1 / input hypothesis); make configurable
+  TODO: make threshold configurable in UI
   """
 
-  # TODO: research optimal threshold (i+1 / input hypothesis); make configurable
+  alias SameTimeTomorrow.Tokenizer
+
+  # TODO: research optimal threshold; make configurable
   @threshold 0.80
 
-  @doc "Returns true if article title meets the known-% threshold."
-  def known_enough?(%{title: title}, known_words) do
-    score(title, known_words) >= @threshold
+  @doc "Returns true if article meets the known-% threshold."
+  def known_enough?(article, known_words) do
+    score(article, known_words) >= @threshold
   end
 
-  @doc "Returns float 0.0–1.0 representing % of CJK tokens that are known."
+  @doc "Returns float 0.0–1.0 for an article struct or raw text string."
+  def score(%{tokens: [_ | _] = tokens}, known_words) do
+    score_tokens(tokens, known_words)
+  end
+
+  def score(%{title: title}, known_words) do
+    title |> Tokenizer.tokenize() |> score_tokens(known_words)
+  end
+
   def score(text, known_words) when is_binary(text) do
-    tokens = text |> normalize() |> Jieba.cut() |> Enum.filter(&cjk_token?/1)
+    text |> Tokenizer.tokenize() |> score_tokens(known_words)
+  end
 
-    case length(tokens) do
+  defp score_tokens(tokens, known_words) do
+    unique = Enum.uniq(tokens)
+
+    case length(unique) do
       0 -> 1.0
-      n -> Enum.count(tokens, &MapSet.member?(known_words, &1)) / n
+      n -> Enum.count(unique, &MapSet.member?(known_words, &1)) / n
     end
-  end
-
-  defp normalize(text) do
-    case OpenCC.convert(:opencc_t2s, text) do
-      {:ok, simplified} -> simplified
-      _ -> text
-    end
-  rescue
-    _ -> text
-  end
-
-  defp cjk_token?(token) do
-    String.graphemes(token)
-    |> Enum.any?(fn <<cp::utf8>> ->
-      cp in 0x4E00..0x9FFF or cp in 0x3400..0x4DBF
-    end)
-  rescue
-    _ -> false
   end
 end

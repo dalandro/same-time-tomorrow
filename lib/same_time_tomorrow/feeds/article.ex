@@ -7,13 +7,14 @@ defmodule SameTimeTomorrow.Feeds.Article do
     field :url, :string
     field :published_at, :utc_datetime
     field :fetched_at, :utc_datetime
+    field :tokens, {:array, :string}, default: []
     belongs_to :source, SameTimeTomorrow.Feeds.RssSource
     timestamps()
   end
 
   def changeset(article, attrs) do
     article
-    |> cast(attrs, [:title, :url, :published_at, :fetched_at, :source_id])
+    |> cast(attrs, [:title, :url, :published_at, :fetched_at, :source_id, :tokens])
     |> validate_required([:title, :url, :fetched_at, :source_id])
     |> unique_constraint(:url)
   end
