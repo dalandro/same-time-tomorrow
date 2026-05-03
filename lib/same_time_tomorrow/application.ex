@@ -13,7 +13,8 @@ defmodule SameTimeTomorrow.Application do
       {DNSCluster, query: Application.get_env(:same_time_tomorrow, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: SameTimeTomorrow.PubSub},
       {Oban, Application.fetch_env!(:same_time_tomorrow, Oban)},
-      SameTimeTomorrowWeb.Endpoint
+      SameTimeTomorrowWeb.Endpoint,
+      {Task, &SameTimeTomorrow.Feeds.FeedScheduler.enqueue_all/0}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

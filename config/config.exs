@@ -53,7 +53,13 @@ config :phoenix, :json_library, Jason
 
 config :same_time_tomorrow, Oban,
   repo: SameTimeTomorrow.Repo,
-  plugins: [Oban.Plugins.Pruner],
+  plugins: [
+    Oban.Plugins.Pruner,
+    {Oban.Plugins.Cron,
+     crontab: [
+       {"0 * * * *", SameTimeTomorrow.Feeds.ScheduleFeedsWorker}
+     ]}
+  ],
   queues: [feeds: 10]
 
 # Import environment specific config. This must remain at the bottom
