@@ -1,5 +1,7 @@
 # SameTimeTomorrow
 
+**Alternate names considered:** 9.9, morning-rite
+
 To start your Phoenix server:
 
 * Run `mix setup` to install and setup dependencies
