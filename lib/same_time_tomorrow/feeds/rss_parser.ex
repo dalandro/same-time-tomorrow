@@ -2,7 +2,6 @@ defmodule SameTimeTomorrow.Feeds.RssParser do
   @doc """
   Parses RSS/Atom XML body into a list of %{title, url, published_at} maps.
   Uses simple regex extraction — good enough for known well-formed feeds.
-  TODO: evaluate saxmerl or sweet_xml for robustness
   """
   def parse(body) when is_binary(body) do
     items =
@@ -24,7 +23,8 @@ defmodule SameTimeTomorrow.Feeds.RssParser do
       %{
         title: extract_text(block, "title"),
         url: extract_link_rss(block),
-        published_at: extract_date(block, ["pubDate", "dc:date"])
+        published_at: extract_date(block, ["pubDate", "dc:date"]),
+        body: extract_body_rss(block)
       }
     end)
     |> Enum.reject(&(is_nil(&1.title) or is_nil(&1.url)))
@@ -37,10 +37,19 @@ defmodule SameTimeTomorrow.Feeds.RssParser do
       %{
         title: extract_text(block, "title"),
         url: extract_atom_link(block),
-        published_at: extract_date(block, ["published", "updated"])
+        published_at: extract_date(block, ["published", "updated"]),
+        body: extract_body_atom(block)
       }
     end)
     |> Enum.reject(&(is_nil(&1.title) or is_nil(&1.url)))
+  end
+
+  defp extract_body_rss(block) do
+    extract_text(block, "content:encoded") || extract_text(block, "description")
+  end
+
+  defp extract_body_atom(block) do
+    extract_text(block, "content") || extract_text(block, "summary")
   end
 
   defp extract_text(block, tag) do

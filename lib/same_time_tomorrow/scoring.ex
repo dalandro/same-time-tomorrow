@@ -3,9 +3,6 @@ defmodule SameTimeTomorrow.Scoring do
   Scores articles against a known vocabulary set.
   Uses pre-stored tokens from articles.tokens when available (fast path).
   Falls back to live tokenization for articles without stored tokens.
-
-  TODO: research optimal threshold (i+1 / input hypothesis); make configurable
-  TODO: make threshold configurable in UI
   """
 
   alias SameTimeTomorrow.Tokenizer
@@ -13,6 +10,10 @@ defmodule SameTimeTomorrow.Scoring do
   @doc "Returns float 0.0–1.0 for an article struct or raw text string."
   def score(%{tokens: [_ | _] = tokens}, known_words) do
     score_tokens(tokens, known_words)
+  end
+
+  def score(%{title: title, body: body}, known_words) when is_binary(body) and body != "" do
+    (title <> " " <> body) |> Tokenizer.tokenize() |> score_tokens(known_words)
   end
 
   def score(%{title: title}, known_words) do

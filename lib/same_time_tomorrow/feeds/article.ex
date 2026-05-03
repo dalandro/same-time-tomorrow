@@ -5,6 +5,7 @@ defmodule SameTimeTomorrow.Feeds.Article do
   schema "articles" do
     field :title, :string
     field :url, :string
+    field :body, :string
     field :published_at, :utc_datetime
     field :fetched_at, :utc_datetime
     field :tokens, {:array, :string}, default: []
@@ -14,7 +15,7 @@ defmodule SameTimeTomorrow.Feeds.Article do
 
   def changeset(article, attrs) do
     article
-    |> cast(attrs, [:title, :url, :published_at, :fetched_at, :source_id, :tokens])
+    |> cast(attrs, [:title, :url, :body, :published_at, :fetched_at, :source_id, :tokens])
     |> validate_required([:title, :url, :fetched_at, :source_id])
     |> unique_constraint(:url)
   end

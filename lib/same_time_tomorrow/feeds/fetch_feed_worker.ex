@@ -33,19 +33,26 @@ defmodule SameTimeTomorrow.Feeds.FetchFeedWorker do
     end
   end
 
+  defp strip_html(nil), do: nil
+  defp strip_html(text), do: Regex.replace(~r/<[^>]+>/, text, "") |> String.trim()
+
   defp parse_rss(body, source_id) when is_binary(body) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     case SameTimeTomorrow.Feeds.RssParser.parse(body) do
       {:ok, items} ->
         Enum.map(items, fn item ->
+          body = strip_html(item.body)
+          text = [item.title, body] |> Enum.reject(&is_nil/1) |> Enum.join(" ")
+
           %{
             source_id: source_id,
             title: item.title,
             url: item.url,
+            body: body,
             published_at: item.published_at,
             fetched_at: now,
-            tokens: SameTimeTomorrow.Tokenizer.tokenize(item.title)
+            tokens: SameTimeTomorrow.Tokenizer.tokenize(text)
           }
         end)
 

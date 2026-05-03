@@ -2,3 +2,8 @@
 - add thumbnails 
 - manually add words, let them be categorized differently to imported lists, allowing you to choose to override them or not 
 - add profiles 
+- research optimal score threshold (i+1 / input hypothesis); make configurable
+- make score threshold configurable in UI
+- scoring: store `unknown_tokens` per article for in-app reader (body now stored and included in tokens)
+- feed parser - evaluate saxmerl or sweet_xml for robustness
+- PlecoParser - consider richer data (definitions, pinyin, score) from export
