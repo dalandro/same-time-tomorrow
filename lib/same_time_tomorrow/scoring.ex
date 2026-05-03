@@ -13,7 +13,8 @@ defmodule SameTimeTomorrow.Scoring do
   normalization here is a catch-all but adds a small per-title cost.
   """
 
-  @threshold 0.99
+  # TODO: research optimal threshold (i+1 / input hypothesis); make configurable
+  @threshold 0.80
 
   @doc "Returns true if article title meets the known-% threshold."
   def known_enough?(%{title: title}, known_words) do
