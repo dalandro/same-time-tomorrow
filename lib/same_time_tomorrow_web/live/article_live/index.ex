@@ -31,7 +31,8 @@ defmodule SameTimeTomorrowWeb.ArticleLive.Index do
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold">同时明天</h1>
         <div class="flex gap-4">
-          <a href="/words" class="text-sm text-blue-600 hover:underline">High-interest words</a>
+          <a href="/sources" class="text-sm text-blue-600 hover:underline">Sources</a>
+          <a href="/words" class="text-sm text-blue-600 hover:underline">Words</a>
           <a href="/vocab/import" class="text-sm text-blue-600 hover:underline">
             Vocab (<%= @known_word_count %>)
           </a>

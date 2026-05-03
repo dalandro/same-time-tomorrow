@@ -3,7 +3,12 @@ defmodule SameTimeTomorrow.Feeds do
   alias SameTimeTomorrow.Repo
   alias SameTimeTomorrow.Feeds.{Article, RssSource}
 
-  def list_sources, do: Repo.all(RssSource)
+  def list_sources, do: Repo.all(from s in RssSource, order_by: [asc: s.name])
+
+  def toggle_source(id) do
+    source = Repo.get!(RssSource, id)
+    source |> RssSource.changeset(%{enabled: !source.enabled}) |> Repo.update()
+  end
 
   def list_enabled_sources do
     Repo.all(from s in RssSource, where: s.enabled == true)
