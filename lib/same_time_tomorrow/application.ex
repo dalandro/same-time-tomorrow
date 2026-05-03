@@ -12,6 +12,7 @@ defmodule SameTimeTomorrow.Application do
       SameTimeTomorrow.Repo,
       {DNSCluster, query: Application.get_env(:same_time_tomorrow, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: SameTimeTomorrow.PubSub},
+      {OpenCC, built_in: :t2s, name: :opencc_t2s},
       {Oban, Application.fetch_env!(:same_time_tomorrow, Oban)},
       SameTimeTomorrowWeb.Endpoint,
       {Task, &SameTimeTomorrow.Feeds.FeedScheduler.enqueue_all/0}
