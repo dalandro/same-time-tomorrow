@@ -4,13 +4,14 @@ defmodule SameTimeTomorrow.Vocab.VocabList do
 
   schema "vocab_lists" do
     field :name, :string
+    field :active, :boolean, default: true
     has_many :words, SameTimeTomorrow.Vocab.VocabWord, foreign_key: :list_id
     timestamps()
   end
 
   def changeset(list, attrs) do
     list
-    |> cast(attrs, [:name])
+    |> cast(attrs, [:name, :active])
     |> validate_required([:name])
   end
 end

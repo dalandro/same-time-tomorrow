@@ -8,8 +8,7 @@ defmodule SameTimeTomorrowWeb.ArticleLive.Index do
   @impl true
   def mount(_params, _session, socket) do
     vocab_lists = Vocab.list_vocab_lists()
-    active_list_ids = Enum.map(vocab_lists, & &1.id)
-    known_words = Vocab.known_headwords(active_list_ids)
+    known_words = Vocab.active_list_ids() |> Vocab.known_headwords()
 
     {articles, closest} =
       Feeds.list_articles(limit: 200)
@@ -19,7 +18,7 @@ defmodule SameTimeTomorrowWeb.ArticleLive.Index do
      assign(socket,
        articles: articles,
        closest: closest,
-       vocab_lists: vocab_lists,
+       vocab_lists: Enum.filter(vocab_lists, & &1.active),
        known_words: known_words,
        known_word_count: MapSet.size(known_words),
        threshold: @default_threshold,
