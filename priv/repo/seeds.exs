@@ -4,6 +4,9 @@ alias SameTimeTomorrow.Vocab.{VocabList, VocabWord}
 
 # RSS Sources
 
+# TODO: research simplified-only RSS/Atom feed URLs for each source.
+# BBC 中文 currently serves traditional characters; scoring normalizes via
+# OpenCC but a dedicated simplified feed would be more accurate and cheaper.
 sources = [
   %{name: "新华社", url: "http://www.xinhuanet.com/rss/world.xml"},
   %{name: "人民日报", url: "http://www.people.com.cn/rss/politics.xml"},
