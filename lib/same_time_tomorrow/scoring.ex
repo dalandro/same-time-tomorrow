@@ -10,14 +10,6 @@ defmodule SameTimeTomorrow.Scoring do
 
   alias SameTimeTomorrow.Tokenizer
 
-  # TODO: research optimal threshold; make configurable
-  @threshold 0.80
-
-  @doc "Returns true if article meets the known-% threshold."
-  def known_enough?(article, known_words) do
-    score(article, known_words) >= @threshold
-  end
-
   @doc "Returns float 0.0–1.0 for an article struct or raw text string."
   def score(%{tokens: [_ | _] = tokens}, known_words) do
     score_tokens(tokens, known_words)

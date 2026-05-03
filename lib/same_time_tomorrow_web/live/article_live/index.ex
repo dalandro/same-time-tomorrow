@@ -3,6 +3,7 @@ defmodule SameTimeTomorrowWeb.ArticleLive.Index do
   alias SameTimeTomorrow.{Feeds, Vocab, Scoring}
 
   @closest_count 5
+  @default_threshold 80
 
   @impl true
   def mount(_params, _session, socket) do
@@ -12,14 +13,16 @@ defmodule SameTimeTomorrowWeb.ArticleLive.Index do
 
     {articles, closest} =
       Feeds.list_articles(limit: 200)
-      |> score_and_partition(known_words)
+      |> score_and_partition(known_words, @default_threshold)
 
     {:ok,
      assign(socket,
        articles: articles,
        closest: closest,
        vocab_lists: vocab_lists,
+       known_words: known_words,
        known_word_count: MapSet.size(known_words),
+       threshold: @default_threshold,
        page_title: "同时明天"
      )}
   end
@@ -28,7 +31,7 @@ defmodule SameTimeTomorrowWeb.ArticleLive.Index do
   def render(assigns) do
     ~H"""
     <div class="max-w-2xl mx-auto p-4">
-      <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center justify-between mb-4">
         <h1 class="text-2xl font-bold">同时明天</h1>
         <div class="flex gap-4">
           <a href="/sources" class="text-sm text-blue-600 hover:underline">Sources</a>
@@ -37,6 +40,19 @@ defmodule SameTimeTomorrowWeb.ArticleLive.Index do
             Vocab (<%= @known_word_count %>)
           </a>
         </div>
+      </div>
+
+      <div class="flex items-center gap-3 mb-6">
+        <label class="text-sm text-gray-500">Threshold</label>
+        <input
+          type="range"
+          min="50" max="100" step="5"
+          value={@threshold}
+          phx-change="set_threshold"
+          name="threshold"
+          class="w-32"
+        />
+        <span class="text-sm font-medium w-10"><%= @threshold %>%</span>
       </div>
 
       <div :if={@vocab_lists == []} class="text-amber-600 bg-amber-50 border border-amber-200 rounded p-4 mb-4">
@@ -78,21 +94,32 @@ defmodule SameTimeTomorrowWeb.ArticleLive.Index do
     """
   end
 
-  defp score_and_partition(articles, known_words) do
+  @impl true
+  def handle_event("set_threshold", %{"threshold" => t}, socket) do
+    threshold = String.to_integer(t)
+
+    {articles, closest} =
+      Feeds.list_articles(limit: 200)
+      |> score_and_partition(socket.assigns.known_words, threshold)
+
+    {:noreply, assign(socket, threshold: threshold, articles: articles, closest: closest)}
+  end
+
+  defp score_and_partition(articles, known_words, threshold) do
     scored =
       articles
-      |> Enum.map(fn a -> {round(Scoring.score(a.title, known_words) * 100), a} end)
+      |> Enum.map(fn a -> {round(Scoring.score(a, known_words) * 100), a} end)
       |> Enum.sort_by(fn {s, _} -> -s end)
 
     passing =
       scored
-      |> Enum.filter(fn {s, _} -> s >= 80 end)
+      |> Enum.filter(fn {s, _} -> s >= threshold end)
       |> Enum.map(fn {_, a} -> a end)
       |> Enum.take(50)
 
     closest =
       scored
-      |> Enum.reject(fn {s, _} -> s >= 80 end)
+      |> Enum.reject(fn {s, _} -> s >= threshold end)
       |> Enum.take(@closest_count)
 
     {passing, closest}
