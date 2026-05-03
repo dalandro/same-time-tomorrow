@@ -38,6 +38,9 @@ defmodule SameTimeTomorrowWeb.ArticleLive.Index do
         No vocab lists yet. <a href="/vocab/import" class="underline">Import your Pleco export</a> to start filtering articles.
       </div>
 
+      <%!-- TODO: when @articles is empty (nothing passes threshold), show top N
+           highest-scoring articles as a "closest matches" section so the user
+           has something to read and can see how close they are to the threshold --%>
       <div :if={@articles == [] and @vocab_lists != []} class="text-gray-500 text-center py-12">
         No articles match your vocabulary level yet. Check back after the next fetch.
       </div>
