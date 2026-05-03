@@ -4,7 +4,6 @@ defmodule PlecoParser do
   Format per line: headword[TAB]definition[TAB]...
   Lines starting with // are comments. Blank lines skipped.
   Returns list of headword strings (simplified Chinese).
-  TODO: consider richer data (definitions, pinyin, score) from export
   """
 
   def parse(content) when is_binary(content) do

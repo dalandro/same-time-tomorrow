@@ -1,3 +1,4 @@
+- Add tests 
 - for each article, list unknown words, sortable by commonness in general,and by occurrences in the article 
 - add thumbnails 
 - manually add words, let them be categorized differently to imported lists, allowing you to choose to override them or not 

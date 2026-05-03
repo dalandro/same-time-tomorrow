@@ -1,6 +1,6 @@
 # SameTimeTomorrow
 
-**Alternate names considered:** 9.9, morning-rite
+**Alternate names considered:** 9.9, morning-rite, see-you-tomorrow (reference to the mushrooms)
 
 To start your Phoenix server:
 

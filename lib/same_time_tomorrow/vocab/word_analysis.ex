@@ -1,10 +1,8 @@
 defmodule SameTimeTomorrow.Vocab.WordAnalysis do
   @moduledoc """
-  Finds unknown words that appear most frequently across article titles.
+  Finds unknown words that appear most frequently across articles.
   Uses stored tokens from articles.tokens — no re-segmentation needed.
   Re-analysis is cheap when vocab list changes.
-
-  TODO: extend to full article body once in-app reader stores content.
   """
 
   import Ecto.Query
