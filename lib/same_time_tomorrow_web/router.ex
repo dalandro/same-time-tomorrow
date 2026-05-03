@@ -19,6 +19,7 @@ defmodule SameTimeTomorrowWeb.Router do
 
     live "/", ArticleLive.Index, :index
     live "/vocab/import", VocabLive.Import, :import
+    live "/words", WordsLive.Index, :index
   end
 
   # Other scopes may use custom stacks.

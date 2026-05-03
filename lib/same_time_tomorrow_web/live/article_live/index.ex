@@ -30,9 +30,12 @@ defmodule SameTimeTomorrowWeb.ArticleLive.Index do
     <div class="max-w-2xl mx-auto p-4">
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold">同时明天</h1>
-        <a href="/vocab/import" class="text-sm text-blue-600 hover:underline">
-          Manage vocab (<%= @known_word_count %> words)
-        </a>
+        <div class="flex gap-4">
+          <a href="/words" class="text-sm text-blue-600 hover:underline">High-interest words</a>
+          <a href="/vocab/import" class="text-sm text-blue-600 hover:underline">
+            Vocab (<%= @known_word_count %>)
+          </a>
+        </div>
       </div>
 
       <div :if={@vocab_lists == []} class="text-amber-600 bg-amber-50 border border-amber-200 rounded p-4 mb-4">

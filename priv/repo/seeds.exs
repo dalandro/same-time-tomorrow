@@ -3,28 +3,50 @@ alias SameTimeTomorrow.Feeds.RssSource
 alias SameTimeTomorrow.Vocab.{VocabList, VocabWord}
 
 # RSS Sources
+# Verified 2026-05-03. All confirmed simplified Chinese except BBC (traditional,
+# handled by OpenCC normalization in scoring).
+# Dead sources removed: 新华社 (RSS discontinued), VOA (403), 中国日报 (English only),
+# 澎湃新闻 (404), 财新网 (RSS discontinued), 南方周末 (404).
 
-# TODO: research simplified-only RSS/Atom feed URLs for each source.
-# BBC 中文 currently serves traditional characters; scoring normalizes via
-# OpenCC but a dedicated simplified feed would be more accurate and cheaper.
-sources = [
-  %{name: "新华社", url: "http://www.xinhuanet.com/rss/world.xml"},
-  %{name: "人民日报", url: "http://www.people.com.cn/rss/politics.xml"},
+active_sources = [
+  # 人民日报 — confirmed simplified (zh-cn)
+  %{name: "人民日报·政治", url: "http://www.people.com.cn/rss/politics.xml"},
+  %{name: "人民日报·国际", url: "http://www.people.com.cn/rss/world.xml"},
+  %{name: "人民日报·财经", url: "http://www.people.com.cn/rss/finance.xml"},
+  %{name: "人民日报·社会", url: "http://www.people.com.cn/rss/society.xml"},
+  %{name: "人民日报·生活", url: "http://www.people.com.cn/rss/life.xml"},
+  # BBC 中文 — traditional Chinese (OpenCC normalizes to simplified for scoring)
   %{name: "BBC 中文", url: "https://feeds.bbci.co.uk/zhongwen/simp/rss.xml"},
-  %{name: "VOA 中文", url: "https://www.voachinese.com/api/zmgqeoiutvmp"},
-  %{name: "中国日报", url: "https://www.chinadaily.com.cn/rss/china_rss.xml"},
-  %{name: "澎湃新闻", url: "https://www.thepaper.cn/rss_cn.jsp"},
-  %{name: "财新网", url: "https://www.caixin.com/rss/all.xml"},
-  %{name: "南方周末", url: "https://www.infzm.com/feed"}
+  # Tech / business — confirmed simplified
+  %{name: "IT之家", url: "https://www.ithome.com/rss/"},
+  %{name: "36氪", url: "https://www.36kr.com/feed"},
+  %{name: "爱范儿", url: "https://www.ifanr.com/feed"},
+  %{name: "Solidot", url: "https://www.solidot.org/index.rss"}
 ]
 
-Enum.each(sources, fn attrs ->
+dead_urls = [
+  "http://www.xinhuanet.com/rss/world.xml",
+  "https://www.voachinese.com/api/zmgqeoiutvmp",
+  "https://www.chinadaily.com.cn/rss/china_rss.xml",
+  "https://www.thepaper.cn/rss_cn.jsp",
+  "https://www.caixin.com/rss/all.xml",
+  "https://www.infzm.com/feed"
+]
+
+import Ecto.Query
+
+Repo.update_all(
+  from(s in RssSource, where: s.url in ^dead_urls),
+  set: [enabled: false]
+)
+
+Enum.each(active_sources, fn attrs ->
   %RssSource{}
   |> RssSource.changeset(attrs)
-  |> Repo.insert!(on_conflict: :nothing, conflict_target: :url)
+  |> Repo.insert!(on_conflict: [set: [enabled: true]], conflict_target: :url)
 end)
 
-IO.puts("Seeded #{length(sources)} RSS sources")
+IO.puts("Seeded #{length(active_sources)} RSS sources")
 
 # HSK 3.0 Level 1 vocabulary (dev seed for testing article scoring)
 
