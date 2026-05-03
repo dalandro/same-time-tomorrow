@@ -66,6 +66,8 @@ defmodule SameTimeTomorrow.MixProject do
       {:bandit, "~> 1.5"},
       {:finch, "~> 0.18"},
       {:oban, "~> 2.18"},
+      {:jieba, "~> 0.3"},
+      {:rustler, ">= 0.0.0", optional: true},
       {:tidewave, "~> 0.4", only: :dev}
     ]
   end

@@ -1,13 +1,8 @@
 defmodule SameTimeTomorrow.Scoring do
   @moduledoc """
-  Scores article titles against a known vocabulary set.
-
-  Current implementation: character-level scoring — each CJK character
-  is checked against the known headwords MapSet. Non-CJK characters
-  (punctuation, numbers, latin) are ignored.
-
-  TODO: replace with proper word segmentation (jieba-ex or Python service)
-  so multi-character words are scored as units rather than individual chars.
+  Scores article titles against a known vocabulary set using jieba word segmentation.
+  Each token from jieba is checked against the known headwords MapSet.
+  Non-CJK tokens (punctuation, numbers, latin) are ignored.
   """
 
   @threshold 0.99
@@ -17,24 +12,22 @@ defmodule SameTimeTomorrow.Scoring do
     score(title, known_words) >= @threshold
   end
 
-  @doc "Returns float 0.0–1.0 representing % of CJK chars that are known."
+  @doc "Returns float 0.0–1.0 representing % of CJK tokens that are known."
   def score(text, known_words) when is_binary(text) do
-    chars = cjk_chars(text)
+    tokens = text |> Jieba.cut() |> Enum.filter(&cjk_token?/1)
 
-    case length(chars) do
+    case length(tokens) do
       0 -> 1.0
-      n -> Enum.count(chars, &MapSet.member?(known_words, &1)) / n
+      n -> Enum.count(tokens, &MapSet.member?(known_words, &1)) / n
     end
   end
 
-  defp cjk_chars(text) do
-    text
-    |> String.graphemes()
-    |> Enum.filter(&cjk?/1)
+  defp cjk_token?(token) do
+    String.graphemes(token)
+    |> Enum.any?(fn <<cp::utf8>> ->
+      cp in 0x4E00..0x9FFF or cp in 0x3400..0x4DBF
+    end)
+  rescue
+    _ -> false
   end
-
-  defp cjk?(<<cp::utf8>>) when cp in 0x4E00..0x9FFF, do: true
-  defp cjk?(<<cp::utf8>>) when cp in 0x3400..0x4DBF, do: true
-  defp cjk?(<<cp::utf8>>) when cp in 0x20000..0x2A6DF, do: true
-  defp cjk?(_), do: false
 end

@@ -51,6 +51,8 @@ config :logger, :default_formatter,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :rustler_precompiled, :force_build, jieba: true
+
 config :same_time_tomorrow, Oban,
   repo: SameTimeTomorrow.Repo,
   plugins: [
